@@ -227,11 +227,28 @@ def show_notification(title="Google Antigravity", message="Генерация з
     toast = ToastNotification(title, message, duration)
     toast.show_smooth()
 
-    if owns_app:
-        QTimer.singleShot(duration + 1000, app.quit)
-        app.exec()
+import tempfile
+import time
+
+def acquire_toast_lock():
+    lock_file = Path(tempfile.gettempdir()) / "ag_toast_debounce.lock"
+    now = time.time()
+    if lock_file.exists():
+        try:
+            if now - lock_file.stat().st_mtime < 2.5:
+                return False
+        except Exception:
+            pass
+    try:
+        lock_file.touch()
+    except Exception:
+        pass
+    return True
 
 if __name__ == "__main__":
+    if not acquire_toast_lock():
+        sys.exit(0)
+
     title_arg = sys.argv[1] if len(sys.argv) > 1 else "Google Antigravity"
     msg_arg = sys.argv[2] if len(sys.argv) > 2 else "Ответ готов, шеф! Вайбкодим дальше"
     show_notification(
