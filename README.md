@@ -51,13 +51,18 @@ cd antigravity-notifier
 pip install -r requirements.txt
 ```
 
-#### 2. Запуск одного уведомления
+#### 2. Проверка работы
 ```bash
+# Запустить тестовое уведомление:
+test.bat
+# или через Python:
 python toast.py "Заголовок" "Генерация ответа завершена!"
 ```
 
 #### 3. Фоновый наблюдатель за Antigravity
-Запусти `run_silent.vbs` — скрипт начнет бесшумно в фоне следить за базой Antigravity и выдавать уведомление при каждом завершении ответа.
+- **Запуск в фоне (без окон):** запусти `run_silent.vbs` или `start.bat`.
+- **Остановка сервиса:** запусти `stop.bat`.
+Скрипты полностью автономны и автоматически находят установленный Python и базу данных Antigravity на любом компьютере.
 
 ---
 
@@ -75,15 +80,24 @@ python toast.py "Заголовок" "Генерация ответа завер
   - Native playback of `sound.mp3` or `chime.wav` via `PyQt6.QtMultimedia`.
 - **🛡️ Hardware Debounce Lock**:
   - Built-in 2.5-second mutex lock preventing duplicate toasts across multiple callers.
-- **🛠️ Standalone CLI**:
-  - Plug-and-play notification utility for any Windows workflow.
+- **🛠️ Standalone CLI & Auto-Detection**:
+  - Automatically resolves Python runtime (`pythonw`, `py`, `python`) and dynamic Antigravity paths on any machine.
 
 ### 🚀 Quick Start
 ```bash
 git clone https://github.com/storm-dev-arch/antigravity-notifier.git
 cd antigravity-notifier
 pip install -r requirements.txt
-python toast.py "Google Antigravity" "Turn generation complete!"
+
+# Test notification:
+test.bat
+
+# Run background watcher:
+run_silent.vbs
+# (or start.bat)
+
+# Stop background watcher:
+stop.bat
 ```
 
 ---

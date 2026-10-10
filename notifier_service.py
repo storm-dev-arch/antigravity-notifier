@@ -60,9 +60,33 @@ for _p in psutil.process_iter(['pid', 'name', 'cmdline']):
     except Exception:
         pass
 
+def find_antigravity_db() -> Path | None:
+    """Finds the Antigravity conversation database dynamically across environments."""
+    custom_env = os.environ.get("ANTIGRAVITY_DB_PATH")
+    if custom_env and Path(custom_env).exists():
+        return Path(custom_env)
+
+    std_home = Path.home() / ".gemini" / "antigravity" / "conversation_summaries.db"
+    if std_home.exists():
+        return std_home
+
+    user_prof = os.environ.get("USERPROFILE")
+    if user_prof:
+        up_path = Path(user_prof) / ".gemini" / "antigravity" / "conversation_summaries.db"
+        if up_path.exists():
+            return up_path
+
+    local_app = os.environ.get("LOCALAPPDATA")
+    if local_app:
+        app_path = Path(local_app) / "Google" / "Antigravity" / "conversation_summaries.db"
+        if app_path.exists():
+            return app_path
+
+    return None
+
 def get_latest_conversation():
-    db_path = Path.home() / ".gemini" / "antigravity" / "conversation_summaries.db"
-    if not db_path.exists():
+    db_path = find_antigravity_db()
+    if not db_path or not db_path.exists():
         return None
     uri = f"file:{db_path.as_posix()}?mode=ro"
     try:
