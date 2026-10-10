@@ -7,12 +7,13 @@ import sys
 import winsound
 from pathlib import Path
 
-from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QPoint
+from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QPoint, QUrl
 from PyQt6.QtGui import QColor, QFont, QPixmap
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton,
     QFrame
 )
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 BASE_DIR = Path(__file__).resolve().parent
 ICON_FILE = BASE_DIR / "antigravity_logo.png"
@@ -180,11 +181,23 @@ class ToastNotification(QWidget):
         self.activateWindow()
 
         # Play custom luxury audio chime
-        if SOUND_FILE.exists():
+        sound_to_play = BASE_DIR / "sound.mp3"
+        if not sound_to_play.exists():
+            sound_to_play = BASE_DIR / "chime.wav"
+
+        if sound_to_play.exists():
             try:
-                winsound.PlaySound(str(SOUND_FILE), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                self.player = QMediaPlayer(self)
+                self.audio_output = QAudioOutput(self)
+                self.player.setAudioOutput(self.audio_output)
+                self.audio_output.setVolume(1.0)
+                self.player.setSource(QUrl.fromLocalFile(str(sound_to_play)))
+                self.player.play()
             except Exception:
-                pass
+                try:
+                    winsound.PlaySound(str(sound_to_play), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                except Exception:
+                    pass
 
         self.pos_anim.start()
         self.timer.start(self.duration)
