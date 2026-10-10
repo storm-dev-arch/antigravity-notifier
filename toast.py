@@ -227,6 +227,10 @@ def show_notification(title="Google Antigravity", message="Генерация з
     toast = ToastNotification(title, message, duration)
     toast.show_smooth()
 
+    if owns_app:
+        QTimer.singleShot(duration + 1000, app.quit)
+        app.exec()
+
 import tempfile
 import time
 
