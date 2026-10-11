@@ -20,7 +20,7 @@ from pathlib import Path
 
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
+from PyQt6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon
 
 # Redirect stdout and stderr if running under pythonw
 if sys.stdout is None:
@@ -54,16 +54,27 @@ logging.basicConfig(
 
 from toast import ToastNotification, _CONFIG_PATH, show_notification
 
-# Single-instance check via fast Win32 Kernel Mutex (~5 microseconds)
-_MUTEX_HANDLE = ctypes.windll.kernel32.CreateMutexW(
-    None, False, "Local\\AntigravityNotifierService_Mutex"
-)
-if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
-    show_notification("Google Antigravity", "Уведомления уже активны в трее", duration=2800)
-    sys.exit(0)
-
 REG_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
 REG_KEY = "AntigravityNotifier"
+_MUTEX_HANDLE = None
+
+
+def kill_stale_instances() -> None:
+    """Kills any previous running instance of AntigravityNotifier so the newly launched one takes over the tray."""
+    try:
+        import psutil
+
+        cur_pid = os.getpid()
+        for proc in psutil.process_iter(["pid", "name"]):
+            try:
+                name = (proc.info["name"] or "").lower()
+                if proc.info["pid"] != cur_pid and "antigravitynotifier" in name:
+                    logging.info("Terminating old instance PID %d (%s)", proc.info["pid"], name)
+                    proc.kill()
+            except Exception:
+                pass
+    except Exception:
+        pass
 
 
 def is_autorun_enabled() -> bool:
@@ -124,25 +135,6 @@ def find_antigravity_db() -> Path | None:
 
 
 class NotifierApp:
-    __slots__ = (
-        "__weakref__",
-        "db_path",
-        "wal_path",
-        "conn",
-        "last_db_mtime",
-        "last_cfg_mtime",
-        "convo_states",
-        "latest_convo_id",
-        "toast",
-        "poll_timer",
-        "tray",
-        "tray_menu",
-        "action_test",
-        "action_autorun",
-        "action_about",
-        "action_exit",
-    )
-
     def __init__(self) -> None:
         self.db_path: Path | None = find_antigravity_db()
         self.wal_path: Path | None = (
@@ -192,9 +184,12 @@ class NotifierApp:
             icon_path = BASE_DIR / "antigravity_logo.png"
 
         app_icon = QIcon(str(icon_path)) if icon_path.exists() else QIcon()
+        if app_icon.isNull():
+            app_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
+
         QApplication.setWindowIcon(app_icon)
 
-        self.tray = QSystemTrayIcon(app_icon)
+        self.tray = QSystemTrayIcon(app_icon, QApplication.instance())
         self.tray.setToolTip("Antigravity Notifier v1.2.0 (Update by cm1s)")
 
         self.tray_menu = QMenu()
@@ -216,7 +211,11 @@ class NotifierApp:
         """)
 
         self.action_test = QAction("🔔 Тестовое уведомление", self.tray_menu)
-        self.action_test.triggered.connect(lambda: self.trigger_toast("Тестовое уведомление: всё работает отлично!", self.latest_convo_id))
+        self.action_test.triggered.connect(
+            lambda: self.trigger_toast(
+                "Тестовое уведомление: всё работает отлично!", self.latest_convo_id
+            )
+        )
         self.tray_menu.addAction(self.action_test)
 
         self.action_autorun = QAction("⚡ Автозагрузка с Windows", self.tray_menu)
@@ -240,6 +239,8 @@ class NotifierApp:
         self.tray.setContextMenu(self.tray_menu)
         self.tray.activated.connect(self._on_tray_activated)
         self.tray.show()
+        self.tray.setVisible(True)
+        logging.info("System tray initialized successfully. isVisible=%s", self.tray.isVisible())
 
     def _on_tray_activated(self, reason: QSystemTrayIcon.ActivationReason) -> None:
         if reason == QSystemTrayIcon.ActivationReason.Trigger:
@@ -398,7 +399,14 @@ class NotifierApp:
 
 
 def main() -> None:
-    logging.info("Antigravity Notifier service started.")
+    kill_stale_instances()
+
+    global _MUTEX_HANDLE
+    _MUTEX_HANDLE = ctypes.windll.kernel32.CreateMutexW(
+        None, False, "Local\\AntigravityNotifierService_Mutex_v120"
+    )
+
+    logging.info("Antigravity Notifier service starting.")
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     _notifier = NotifierApp()
