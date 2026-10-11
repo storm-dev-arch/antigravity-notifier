@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/storm-dev-arch/antigravity-notifier/releases/tag/v1.1.0"><img src="https://img.shields.io/badge/Release-v1.1.0-blue?style=for-the-badge" alt="Release"></a>
+  <a href="https://github.com/storm-dev-arch/antigravity-notifier/releases/tag/v1.2.0"><img src="https://img.shields.io/badge/Release-v1.2.0-blue?style=for-the-badge" alt="Release"></a>
   <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python Version">
   <img src="https://img.shields.io/badge/GUI-PyQt6-41CD52?style=for-the-badge&logo=qt&logoColor=white" alt="PyQt6">
   <img src="https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Platform">
@@ -25,16 +25,21 @@
 ---
 
 <a name="changelog"></a>
-## 🚀 Версия 1.1.0 (v1.1.0) — Update by cm1s
+## 🚀 Версия 1.2.0 (v1.2.0) — Update by cm1s
 
-### 🇷🇺 Что нового:
+### 📦 Скачать готовый архив:
+- [⬇️ **antigravity-notifier-v1.2.0.zip**](https://github.com/storm-dev-arch/antigravity-notifier/releases/download/v1.2.0/antigravity-notifier-v1.2.0.zip)
+
+### 🇷🇺 Что нового в v1.2.0:
+- **📦 Полная сборка релиза (Full Standalone Release)**: упакован официальный zip-архив релиза со всеми ассетами и скриптами быстрого старта.
 - **🎵 Обновленный звуковой движок**: переход на `PyQt6.QtMultimedia` с поддержкой `sound.mp3` и `chime.wav` с кристально чистым воспроизведением без задержек.
 - **🛡️ Аппаратный Debounce-лок (2.5 сек)**: защита от двойных уведомлений. Исключает ложные дублирования при одновременных триггерах.
 - **💎 Доработанная геометрия Glassmorphism**: оптимизированная плавная кубическая кривая скольжения `OutCubic` и улучшенный отклик на клик и ховер.
 - **🇷🇺 Полная русскоязычная документация**: добавлены подробные инструкции и описание архитектуры на русском языке.
 - *Credit: Update by cm1s.*
 
-### 🇬🇧 What's New:
+### 🇬🇧 What's New in v1.2.0:
+- **📦 Full Standalone Release Package**: Packaged official downloadable ZIP release asset containing all scripts and audio assets.
 - **🎵 Modern Audio Engine**: Powered by `PyQt6.QtMultimedia`, playing `sound.mp3` and `chime.wav` with zero audio latency.
 - **🛡️ 2.5s Mutex Debounce Lock**: Completely eliminates double toasts across concurrent callers.
 - **💎 Refined Glassmorphism Aesthetics**: Polished cubic slide-in physics, hover states, and dismiss mechanics.
