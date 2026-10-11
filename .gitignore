@@ -1,4 +1,8 @@
 __pycache__/
 *.pyc
 *.log
+*.spec
+build/
+dist/
+*.zip
 test_render*.png
