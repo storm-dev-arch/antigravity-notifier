@@ -33,7 +33,7 @@ class ToastNotification(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, True)
 
-        self.setFixedSize(390, 88)
+        self.setFixedSize(310, 52)
 
         self._init_ui(title, message)
         self._setup_animation()
@@ -44,69 +44,64 @@ class ToastNotification(QWidget):
 
     def _init_ui(self, title, message):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(6, 6, 6, 6)
+        main_layout.setContentsMargins(4, 4, 4, 4)
 
-        # Main Card: Raycast/Linear inspired obsidian dark mode
+        # Main Card: Compact Obsidian Glassmorphism
         self.card = QFrame(self)
         self.card.setObjectName("card")
         self.card.setStyleSheet("""
             QFrame#card {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #0f141c,
-                    stop:1 #090d14);
-                border: 1px solid rgba(255, 255, 255, 0.09);
-                border-top: 1px solid rgba(255, 255, 255, 0.16);
-                border-radius: 12px;
+                background: rgba(13, 17, 23, 0.94);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-top: 1px solid rgba(255, 255, 255, 0.22);
+                border-radius: 14px;
             }
         """)
 
         card_layout = QHBoxLayout(self.card)
-        card_layout.setContentsMargins(14, 12, 14, 12)
-        card_layout.setSpacing(13)
+        card_layout.setContentsMargins(10, 6, 10, 6)
+        card_layout.setSpacing(10)
 
-        # App Icon
+        # App Icon (compact 24x24)
         self.icon_label = QLabel(self.card)
-        self.icon_label.setFixedSize(40, 40)
+        self.icon_label.setFixedSize(24, 24)
         if ICON_FILE.exists():
             pix = QPixmap(str(ICON_FILE)).scaled(
-                40, 40, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+                24, 24, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
             )
             self.icon_label.setPixmap(pix)
         else:
             self.icon_label.setText("AG")
-            self.icon_label.setStyleSheet("color: #6366f1; font-weight: 800; font-size: 16px;")
+            self.icon_label.setStyleSheet("color: #6366f1; font-weight: 800; font-size: 12px;")
         card_layout.addWidget(self.icon_label)
 
         # Text container
         text_layout = QVBoxLayout()
-        text_layout.setSpacing(3)
+        text_layout.setSpacing(1)
         text_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Header row: Title + Clean Status Pill (No emojis)
+        # Header row: Title + Clean Status Pill
         top_row = QHBoxLayout()
-        top_row.setSpacing(8)
+        top_row.setSpacing(6)
 
         title_lbl = QLabel(title, self.card)
         title_lbl.setStyleSheet("""
             color: #f1f5f9;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 0.2px;
             font-family: "Segoe UI", -apple-system, sans-serif;
         """)
         top_row.addWidget(title_lbl)
 
-        # Modern minimalist pill badge
         status_pill = QLabel("ГОТОВО", self.card)
         status_pill.setStyleSheet("""
             background-color: rgba(16, 185, 129, 0.12);
             color: #34d399;
             border: 1px solid rgba(16, 185, 129, 0.28);
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 700;
-            padding: 1px 6px;
+            padding: 1px 5px;
             border-radius: 4px;
-            letter-spacing: 0.5px;
             font-family: "Segoe UI", -apple-system, sans-serif;
         """)
         top_row.addWidget(status_pill)
@@ -114,43 +109,46 @@ class ToastNotification(QWidget):
 
         text_layout.addLayout(top_row)
 
-        # Message body: clean high-contrast subtitle
-        msg_lbl = QLabel(message, self.card)
-        msg_lbl.setWordWrap(True)
+        # Message body: clean subtitle
+        clean_msg = message.strip()
+        msg_lbl = QLabel(clean_msg, self.card)
         msg_lbl.setStyleSheet("""
             color: #94a3b8;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 400;
-            line-height: 14px;
             font-family: "Segoe UI", -apple-system, sans-serif;
         """)
         text_layout.addWidget(msg_lbl)
 
-        card_layout.addLayout(text_layout)
+        card_layout.addLayout(text_layout, 1)
 
-        # Minimalist dismiss button
-        close_btn = QPushButton("×", self.card)
-        close_btn.setFixedSize(20, 20)
+        # Dismiss cross button
+        close_btn = QPushButton("✕", self.card)
+        close_btn.setFixedSize(16, 16)
         close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         close_btn.setStyleSheet("""
             QPushButton {
                 background: transparent;
                 color: #64748b;
                 border: none;
-                font-size: 14px;
-                font-weight: 400;
-                border-radius: 10px;
-                margin-top: -2px;
+                font-size: 10px;
+                font-weight: bold;
+                border-radius: 8px;
             }
             QPushButton:hover {
-                background: rgba(255, 255, 255, 0.08);
-                color: #cbd5e1;
+                background: rgba(255, 255, 255, 0.12);
+                color: #f1f5f9;
             }
         """)
         close_btn.clicked.connect(self.slide_out)
-        card_layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignTop)
+        card_layout.addWidget(close_btn)
 
         main_layout.addWidget(self.card)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.slide_out()
+        super().mousePressEvent(event)
 
     def _setup_animation(self):
         screen = QApplication.primaryScreen()

@@ -64,18 +64,21 @@ def set_autorun(enabled):
 
 # Поиск базы данных Antigravity
 def get_antigravity_db_path():
+    primary = Path.home() / ".gemini" / "antigravity" / "conversation_summaries.db"
+    if primary.exists():
+        return primary
     appdata = os.environ.get("APPDATA", "")
     userprofile = os.environ.get("USERPROFILE", "")
     candidates = [
+        primary,
         Path(appdata) / "Antigravity" / "User" / "globalStorage" / "conversation_summaries.db",
         Path(appdata) / "Google" / "Antigravity" / "User" / "globalStorage" / "conversation_summaries.db",
-        Path(userprofile) / ".antigravity" / "conversation_summaries.db",
-        Path(userprofile) / ".gemini" / "antigravity" / "conversation_summaries.db"
+        Path(userprofile) / ".antigravity" / "conversation_summaries.db"
     ]
     for p in candidates:
         if p.exists():
             return p
-    return candidates[0]
+    return primary
 
 # Фоновый поток для отслеживания событий Antigravity
 class AntigravityWatcherThread(QThread):
@@ -91,10 +94,10 @@ class AntigravityWatcherThread(QThread):
             try:
                 db_path = get_antigravity_db_path()
                 if db_path.exists():
-                    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=2.0)
+                    conn = sqlite3.connect(f"file:{db_path.as_posix()}?mode=ro", uri=True, timeout=2.0)
                     cursor = conn.cursor()
                     cursor.execute("""
-                        SELECT summary, status FROM conversations 
+                        SELECT title, status FROM conversation_summaries 
                         WHERE status IS NOT NULL 
                         ORDER BY last_modified_time DESC LIMIT 1
                     """)
@@ -108,13 +111,13 @@ class AntigravityWatcherThread(QThread):
                         self.last_status = status
             except Exception:
                 pass
-            time.sleep(1.8)
+            time.sleep(1.5)
 
     def stop(self):
         self.running = False
         self.wait(1500)
 
-# Виджет всплывающего уведомления (Glassmorphism)
+# Виджет всплывающего уведомления (Компактный ультра-стильный Glassmorphism)
 class ToastNotification(QWidget):
     def __init__(self, title="Google Antigravity", message="Генерация завершена", duration=4500):
         super().__init__()
@@ -128,7 +131,7 @@ class ToastNotification(QWidget):
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, True)
-        self.setFixedSize(390, 88)
+        self.setFixedSize(310, 52)
 
         self._init_ui(title, message)
         self._setup_animation()
@@ -139,64 +142,61 @@ class ToastNotification(QWidget):
 
     def _init_ui(self, title, message):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(6, 6, 6, 6)
+        main_layout.setContentsMargins(4, 4, 4, 4)
 
         self.card = QFrame(self)
         self.card.setObjectName("card")
         self.card.setStyleSheet("""
             QFrame#card {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #0f141c,
-                    stop:1 #090d14);
-                border: 1px solid rgba(255, 255, 255, 0.09);
-                border-top: 1px solid rgba(255, 255, 255, 0.16);
-                border-radius: 12px;
+                background: rgba(13, 17, 23, 0.94);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-top: 1px solid rgba(255, 255, 255, 0.22);
+                border-radius: 14px;
             }
         """)
 
         card_layout = QHBoxLayout(self.card)
-        card_layout.setContentsMargins(14, 10, 14, 10)
-        card_layout.setSpacing(12)
+        card_layout.setContentsMargins(10, 6, 10, 6)
+        card_layout.setSpacing(10)
 
-        # Логотип
+        # Логотип (компактный 24x24)
         self.icon_label = QLabel(self.card)
-        self.icon_label.setFixedSize(38, 38)
+        self.icon_label.setFixedSize(24, 24)
         self.icon_label.setStyleSheet("background: transparent;")
         if os.path.exists(ICON_PNG):
             pixmap = QPixmap(ICON_PNG)
-            self.icon_label.setPixmap(pixmap.scaled(38, 38, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            self.icon_label.setPixmap(pixmap.scaled(24, 24, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
-        # Текст
+        # Текст (компактный и аккуратный)
         text_layout = QVBoxLayout()
-        text_layout.setSpacing(2)
+        text_layout.setSpacing(1)
         text_layout.setContentsMargins(0, 0, 0, 0)
 
         self.title_label = QLabel(title, self.card)
-        self.title_label.setFont(QFont("Segoe UI Variable Display", 10, QFont.Weight.DemiBold))
+        self.title_label.setFont(QFont("Segoe UI Variable Display", 9, QFont.Weight.DemiBold))
         self.title_label.setStyleSheet("color: #ffffff; background: transparent;")
 
         self.msg_label = QLabel(message, self.card)
-        self.msg_label.setFont(QFont("Segoe UI Variable Text", 9, QFont.Weight.Normal))
+        self.msg_label.setFont(QFont("Segoe UI Variable Text", 8, QFont.Weight.Normal))
         self.msg_label.setStyleSheet("color: #94a3b8; background: transparent;")
-        self.msg_label.setWordWrap(True)
 
         text_layout.addWidget(self.title_label)
         text_layout.addWidget(self.msg_label)
 
         # Кнопка закрытия
         self.close_btn = QPushButton("✕", self.card)
-        self.close_btn.setFixedSize(20, 20)
+        self.close_btn.setFixedSize(16, 16)
         self.close_btn.setStyleSheet("""
             QPushButton {
                 background: transparent;
                 color: #64748b;
                 border: none;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: bold;
-                border-radius: 10px;
+                border-radius: 8px;
             }
             QPushButton:hover {
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.12);
                 color: #ffffff;
             }
         """)
@@ -207,6 +207,11 @@ class ToastNotification(QWidget):
         card_layout.addWidget(self.close_btn)
 
         main_layout.addWidget(self.card)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.slide_out()
+        super().mousePressEvent(event)
 
     def _setup_animation(self):
         screen = QApplication.primaryScreen()
