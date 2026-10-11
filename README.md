@@ -10,16 +10,36 @@
 </p>
 
 <p align="center">
-  <a href="#russian">🇷🇺 Читать на русском</a> • <a href="#english">🇬🇧 English Readme</a>
+  <a href="#russian">🇷🇺 Читать на русском</a> • <a href="#english">🇬🇧 English Readme</a> • <a href="#changelog">📜 Changelog</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/storm-dev-arch/antigravity-notifier/releases"><img src="https://img.shields.io/github/v/release/storm-dev-arch/antigravity-notifier?color=blue&style=for-the-badge" alt="Release"></a>
+  <a href="https://github.com/storm-dev-arch/antigravity-notifier/releases/tag/v1.1.0"><img src="https://img.shields.io/badge/Release-v1.1.0-blue?style=for-the-badge" alt="Release"></a>
   <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python Version">
   <img src="https://img.shields.io/badge/GUI-PyQt6-41CD52?style=for-the-badge&logo=qt&logoColor=white" alt="PyQt6">
   <img src="https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Platform">
+  <img src="https://img.shields.io/badge/Update%20by-cm1s-orange?style=for-the-badge" alt="Update by cm1s">
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
 </p>
+
+---
+
+<a name="changelog"></a>
+## 🚀 Версия 1.1.0 (v1.1.0) — Update by cm1s
+
+### 🇷🇺 Что нового:
+- **🎵 Обновленный звуковой движок**: переход на `PyQt6.QtMultimedia` с поддержкой `sound.mp3` и `chime.wav` с кристально чистым воспроизведением без задержек.
+- **🛡️ Аппаратный Debounce-лок (2.5 сек)**: защита от двойных уведомлений. Исключает ложные дублирования при одновременных триггерах.
+- **💎 Доработанная геометрия Glassmorphism**: оптимизированная плавная кубическая кривая скольжения `OutCubic` и улучшенный отклик на клик и ховер.
+- **🇷🇺 Полная русскоязычная документация**: добавлены подробные инструкции и описание архитектуры на русском языке.
+- *Credit: Update by cm1s.*
+
+### 🇬🇧 What's New:
+- **🎵 Modern Audio Engine**: Powered by `PyQt6.QtMultimedia`, playing `sound.mp3` and `chime.wav` with zero audio latency.
+- **🛡️ 2.5s Mutex Debounce Lock**: Completely eliminates double toasts across concurrent callers.
+- **💎 Refined Glassmorphism Aesthetics**: Polished cubic slide-in physics, hover states, and dismiss mechanics.
+- **🌐 Full Bilingual Support**: Comprehensive documentation in Russian and English.
+- *Credit: Update by cm1s.*
 
 ---
 
